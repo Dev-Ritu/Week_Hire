@@ -7,33 +7,40 @@ import {
   Button,
   Container,
 } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
+import { fetchJobsList } from "./redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import { selectJobsList } from "./redux/selectors";
+import { actions } from "./redux/reducers";
+
+const { setJobsLists } = actions;
 
 const JobList = () => {
+  const dispatch = useDispatch();
+  const selectedJobList = useSelector(selectJobsList);
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const limit = 12;
 
+  useEffect(() => {
+    setData(selectedJobList);
+  }, [selectedJobList]);
+
   const fetchData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await axios.post(
-        "https://api.weekday.technology/adhoc/getSampleJdJSON",
-        { limit, offset: page },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      const newData = response.data.jdList;
-      setData((prevData) => [...prevData, ...newData]);
-      setPage((prevPage) => prevPage + 1);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setIsLoading(false);
-      setHasMore(false); // Stop fetching if there's an error
-    }
+    setIsLoading(true);
+    dispatch(
+      fetchJobsList({
+        params: { limit, offset: page },
+      })
+    ).then((res) => {
+      console.log("responseList", res.jdList);
+      dispatch(setJobsLists(res.jdList));
+      setPage((prev) => prev + 1);
+    });
+
+    setIsLoading(false);
   };
 
   const handleScroll = () => {
@@ -46,6 +53,7 @@ const JobList = () => {
       fetchData();
     }
   };
+  console.log("+++++++++++++data", data);
 
   useEffect(() => {
     fetchData();
@@ -153,7 +161,9 @@ const JobList = () => {
                         About Role:
                       </Typography>
 
-                      <Box className="job-description">{jobDetailsFromCompany}</Box>
+                      <Box className="job-description">
+                        {jobDetailsFromCompany}
+                      </Box>
                     </Box>
 
                     <Box className="show-more">
