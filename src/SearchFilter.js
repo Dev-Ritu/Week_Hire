@@ -1,30 +1,45 @@
-import { FormControl, OutlinedInput } from "@mui/material"
-import { CustomSelect } from "./Components"
-
-// Below I've created a JSON object to streamline and reduce code repetition, then utilized the map method to dynamically render input components based on this object
-
-const filterCategories = [{ name: "roles", label: "Roles", inputType: "multi" }, { name: "employees", label: "No. of Employees", inputType: "single" }, { name: "experience", label: "Experience", inputType: "single" }, { name: "remote", label: "Remote", inputType: "multi" }, { name: "basePay", label: "Minimum Base Pay Salary", inputType: "single" }]
+import { Box, Container, FormControl, OutlinedInput } from "@mui/material";
+import { CustomSelect } from "./Components";
+import { useState } from "react";
+import { filterCategories } from "./constants";
 
 const SearchFilter = () => {
-    return <>
-        <div className="search-filter">
-            {
-                filterCategories.map(({ name, label, inputType }) =>
-                    <CustomSelect
-                        key={name}
-                        name={name}
-                        label={label}
-                        inputType={inputType}
-                    ></CustomSelect>
+  const [filters, setFilters] = useState({});
 
-                )
-            }
-            <FormControl>
-                <OutlinedInput placeholder="Company Name" className="OutlinedInput" />
-            </FormControl>
-        </div>
+  const handleFilterChange = (name, value) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  return (
+    <>
+      <Container>
+        <Box className="search-filter">
+          {filterCategories.map(({ name, label, inputType, options }) => (
+            <CustomSelect
+              key={name}
+              name={name}
+              label={label}
+              inputType={inputType}
+              options={options}
+              setFilters={setFilters}
+            ></CustomSelect>
+          ))}
+          <FormControl>
+            <OutlinedInput
+              placeholder="Company Name"
+              className="outlined-input"
+              onChange={(event) =>
+                handleFilterChange("companyName", event.target.value)
+              }
+            />
+          </FormControl>
+        </Box>
+      </Container>
     </>
+  );
+};
 
-}
-
-export default SearchFilter
+export default SearchFilter;
