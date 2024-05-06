@@ -17,14 +17,13 @@ const slice = createSlice({
   initialState,
   reducers: {
     setJobsLists: (state, action) => {
-      console.log("action++++++++", action);
       state.jobsList = [...state.jobsList, ...action.payload];
     },
     setFilteredJobs: (state, action) => {
       state.filteredJobs = action.payload;
     },
     setAppliedFilters: (state, action) => {
-      state.appliedFilters = action.payload;
+      state.appliedFilters = { ...state.appliedFilters, ...action.payload };
     },
   },
 });
